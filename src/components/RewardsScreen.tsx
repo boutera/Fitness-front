@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,9 @@ import {
   Image,
   Dimensions,
   Animated,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -34,6 +34,10 @@ interface Reward {
   pointsCost: number;
   isLocked: boolean;
   category: 'Premium' | 'Basic' | 'Special';
+}
+
+interface Challenge {
+  tips: string[];
 }
 
 const achievements: Achievement[] = [
@@ -114,47 +118,152 @@ const rewards: Reward[] = [
 ];
 
 export const RewardsScreen: React.FC = () => {
-  const userPoints = 2500;
+  const [userAchievements, setUserAchievements] = useState<Achievement[]>(achievements);
+  const [availablePoints, setAvailablePoints] = useState<number>(0);
+  const [userRewards, setUserRewards] = useState<Reward[]>(rewards);
+  const challenge: Challenge = {
+    tips: [
+      "Complete daily workouts to earn more points",
+      "Share your achievements with friends",
+      "Join challenges to unlock special rewards",
+      "Stay consistent with your fitness routine"
+    ]
+  };
+
+  const getProgressColor = (progress: number, total: number): string => {
+    const percentage = (progress / total) * 100;
+    
+    if (percentage === 100) return '#2E7D32'; // Very green
+    if (percentage >= 75) return '#7CB342';   // Yellow-green
+    if (percentage >= 50) return '#FDD835';   // Yellow
+    if (percentage >= 25) return '#FB8C00';   // Orange
+    return '#D32F2F';                         // Red
+  };
+
+  // Calculate total points from unlocked achievements
+  React.useEffect(() => {
+    const totalPoints = userAchievements
+      .filter(achievement => achievement.isUnlocked)
+      .reduce((sum, achievement) => sum + achievement.points, 0);
+    setAvailablePoints(totalPoints);
+  }, [userAchievements]);
+
+  const handleAchievementPress = (achievement: Achievement) => {
+    if (achievement.isUnlocked) {
+      Alert.alert(
+        'Achievement Unlocked',
+        `You've already completed "${achievement.title}" and earned ${achievement.points} points!`,
+        [{ text: 'OK' }]
+      );
+    } else if (achievement.progress >= achievement.total) {
+      Alert.alert(
+        'Congratulations!',
+        `You've completed "${achievement.title}"! You've earned ${achievement.points} points!`,
+        [
+          {
+            text: 'Claim',
+            onPress: () => {
+              // Update achievement status
+              setUserAchievements(prev =>
+                prev.map(a =>
+                  a.id === achievement.id ? { ...a, isUnlocked: true } : a
+                )
+              );
+            },
+          },
+        ]
+      );
+    } else {
+      Alert.alert(
+        'Achievement In Progress',
+        `Progress: ${achievement.progress}/${achievement.total}\n${achievement.description}`,
+        [{ text: 'OK' }]
+      );
+    }
+  };
+
+  const handleUnlockReward = (reward: Reward) => {
+    if (availablePoints < reward.pointsCost) {
+      Alert.alert(
+        'Not Enough Points',
+        'You need more points to unlock this reward. Keep completing achievements to earn more points!',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Unlock Reward',
+      `Are you sure you want to spend ${reward.pointsCost} points to unlock "${reward.title}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Unlock',
+          onPress: () => {
+            // Update points
+            setAvailablePoints(prev => prev - reward.pointsCost);
+            
+            // Update reward status
+            setUserRewards(prev =>
+              prev.map(r =>
+                r.id === reward.id ? { ...r, isLocked: false } : r
+              )
+            );
+
+            // Show success message
+            Alert.alert(
+              'Success!',
+              `You've successfully unlocked ${reward.title}!`,
+              [{ text: 'OK' }]
+            );
+          },
+        },
+      ]
+    );
+  };
 
   const renderAchievementCard = (achievement: Achievement) => (
     <TouchableOpacity 
       key={achievement.id}
       style={[
         styles.achievementCard,
-        achievement.isUnlocked && styles.achievementCardUnlocked
+        {
+          backgroundColor: achievement.isUnlocked 
+            ? '#2E7D32' // Very green for unlocked
+            : getProgressColor(achievement.progress, achievement.total)
+        }
       ]}
+      onPress={() => handleAchievementPress(achievement)}
     >
-      <LinearGradient
-        colors={achievement.isUnlocked ? ['#4CAF50', '#45a049'] : ['#4c669f', '#3b5998']}
-        style={styles.achievementGradient}
-      >
-        <View style={styles.achievementIcon}>
-          <Ionicons 
-            name={achievement.icon as any} 
-            size={32} 
-            color="#fff" 
+      <View style={styles.achievementIcon}>
+        <Ionicons 
+          name={achievement.icon as any} 
+          size={32} 
+          color="#fff" 
+        />
+      </View>
+      <Text style={styles.achievementTitle}>{achievement.title}</Text>
+      <Text style={styles.achievementDescription}>{achievement.description}</Text>
+      <View style={styles.progressContainer}>
+        <View style={styles.progressBar}>
+          <View 
+            style={[
+              styles.progressFill,
+              { width: `${(achievement.progress / achievement.total) * 100}%` }
+            ]}
           />
         </View>
-        <Text style={styles.achievementTitle}>{achievement.title}</Text>
-        <Text style={styles.achievementDescription}>{achievement.description}</Text>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View 
-              style={[
-                styles.progressFill,
-                { width: `${(achievement.progress / achievement.total) * 100}%` }
-              ]}
-            />
-          </View>
-          <Text style={styles.progressText}>
-            {achievement.progress}/{achievement.total}
-          </Text>
-        </View>
-        <View style={styles.pointsContainer}>
-          <Ionicons name="star" size={16} color="#FFD700" />
-          <Text style={styles.pointsText}>{achievement.points} pts</Text>
-        </View>
-      </LinearGradient>
+        <Text style={styles.progressText}>
+          {achievement.progress}/{achievement.total}
+        </Text>
+      </View>
+      <View style={styles.pointsContainer}>
+        <Ionicons name="star" size={16} color="#FFD700" />
+        <Text style={styles.pointsText}>{achievement.points} pts</Text>
+      </View>
     </TouchableOpacity>
   );
 
@@ -181,14 +290,21 @@ export const RewardsScreen: React.FC = () => {
           <TouchableOpacity 
             style={[
               styles.unlockButton,
-              userPoints < reward.pointsCost && styles.unlockButtonDisabled
+              availablePoints < reward.pointsCost && styles.unlockButtonDisabled
             ]}
-            disabled={userPoints < reward.pointsCost}
+            disabled={availablePoints < reward.pointsCost}
+            onPress={() => handleUnlockReward(reward)}
           >
             <Text style={styles.unlockButtonText}>
-              {userPoints >= reward.pointsCost ? 'Unlock Now' : 'Not Enough Points'}
+              {availablePoints >= reward.pointsCost ? 'Unlock Now' : 'Not Enough Points'}
             </Text>
           </TouchableOpacity>
+        )}
+        {!reward.isLocked && (
+          <View style={styles.unlockedBadge}>
+            <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+            <Text style={styles.unlockedText}>Unlocked</Text>
+          </View>
         )}
       </View>
     </TouchableOpacity>
@@ -200,7 +316,7 @@ export const RewardsScreen: React.FC = () => {
         <Text style={styles.headerTitle}>Rewards & Achievements</Text>
         <View style={styles.pointsDisplay}>
           <Ionicons name="star" size={24} color="#FFD700" />
-          <Text style={styles.totalPoints}>{userPoints} pts</Text>
+          <Text style={styles.totalPoints}>{availablePoints} pts</Text>
         </View>
       </View>
 
@@ -211,7 +327,7 @@ export const RewardsScreen: React.FC = () => {
           showsHorizontalScrollIndicator={false}
           style={styles.achievementsContainer}
         >
-          {achievements.map(renderAchievementCard)}
+          {userAchievements.map(renderAchievementCard)}
         </ScrollView>
       </View>
 
@@ -220,6 +336,16 @@ export const RewardsScreen: React.FC = () => {
         <View style={styles.rewardsContainer}>
           {rewards.map(renderRewardCard)}
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Tips</Text>
+        {challenge.tips.map((tip: string, index: number) => (
+          <View key={index} style={styles.tipItem}>
+            <Ionicons name="bulb" size={24} color="#4c669f" />
+            <Text style={styles.tipText}>{tip}</Text>
+          </View>
+        ))}
       </View>
     </ScrollView>
   );
@@ -247,12 +373,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f8f8f8',
-    padding: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 20,
+    minWidth: 100,
   },
   totalPoints: {
-    marginLeft: 8,
-    fontSize: 18,
+    marginLeft: 6,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
   },
@@ -273,6 +401,7 @@ const styles = StyleSheet.create({
     width: width * 0.7,
     marginRight: 15,
     borderRadius: 15,
+    padding: 15,
     overflow: 'hidden',
     elevation: 3,
     shadowColor: '#000',
@@ -280,17 +409,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
-  achievementCardUnlocked: {
-    opacity: 0.9,
-  },
-  achievementGradient: {
-    padding: 20,
-  },
   achievementIcon: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
@@ -395,6 +518,26 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 14,
+  },
+  unlockedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  unlockedText: {
+    marginLeft: 5,
+    color: '#4CAF50',
+    fontWeight: 'bold',
+  },
+  tipItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  tipText: {
+    marginLeft: 10,
+    fontSize: 16,
+    color: '#333',
   },
 });
 

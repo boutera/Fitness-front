@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/AppNavigator';
+import { Ionicons } from '@expo/vector-icons';
 
 type WorkoutDetailScreenProps = {
   route: RouteProp<RootStackParamList, 'WorkoutDetail'>;
@@ -9,6 +10,12 @@ type WorkoutDetailScreenProps = {
 
 export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route }) => {
   const { workout } = route.params;
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  const handleComplete = () => {
+    setIsCompleted(true);
+    // Here you could also add logic to save the completion status to your backend
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -31,6 +38,18 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
             <Text style={styles.statValue}>{workout.calories}</Text>
           </View>
         </View>
+
+        {!isCompleted ? (
+          <TouchableOpacity style={styles.completeButton} onPress={handleComplete}>
+            <Ionicons name="checkmark-circle" size={24} color="#fff" />
+            <Text style={styles.completeButtonText}>Mark as Done</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.completedContainer}>
+            <Ionicons name="checkmark-circle" size={24} color="#4CAF50" />
+            <Text style={styles.completedText}>Workout Completed!</Text>
+          </View>
+        )}
 
         <Text style={styles.sectionTitle}>Description</Text>
         <Text style={styles.description}>{workout.description}</Text>
@@ -98,6 +117,36 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  completeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#007AFF',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  completeButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
+  },
+  completedContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E8F5E9',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  completedText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 8,
   },
   sectionTitle: {
     fontSize: 18,

@@ -144,36 +144,42 @@ export const HomeScreen: React.FC = () => {
       {/* Quick Actions */}
       <View style={styles.quickActions}>
         <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.actionButtons}>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Workout')}
-          >
-            <Ionicons name="fitness-outline" size={24} color="#4c669f" />
-            <Text style={styles.actionText}>Start Workout</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Schedule')}
-          >
-            <Ionicons name="calendar-outline" size={24} color="#4c669f" />
-            <Text style={styles.actionText}>Schedule</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Progress')}
-          >
-            <Ionicons name="stats-chart-outline" size={24} color="#4c669f" />
-            <Text style={styles.actionText}>Progress</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.actionButton}
-            onPress={() => navigation.navigate('Rewards')}
-          >
-            <Ionicons name="trophy-outline" size={24} color="#4c669f" />
-            <Text style={styles.actionText}>Rewards</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          style={styles.actionButtonsContainer}
+        >
+          <View style={styles.actionButtons}>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Workout')}
+            >
+              <Ionicons name="fitness-outline" size={24} color="#4c669f" />
+              <Text style={styles.actionText}>Start Workout</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Schedule')}
+            >
+              <Ionicons name="calendar-outline" size={24} color="#4c669f" />
+              <Text style={styles.actionText}>Schedule</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Progress')}
+            >
+              <Ionicons name="stats-chart-outline" size={24} color="#4c669f" />
+              <Text style={styles.actionText}>Progress</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('Rewards')}
+            >
+              <Ionicons name="trophy-outline" size={24} color="#4c669f" />
+              <Text style={styles.actionText}>Rewards</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       </View>
 
       {/* Recent Workouts */}
@@ -300,16 +306,20 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 15,
   },
+  actionButtonsContainer: {
+    marginHorizontal: -20,
+  },
   actionButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    gap: 15,
   },
   actionButton: {
     backgroundColor: '#fff',
     padding: 15,
     borderRadius: 12,
     alignItems: 'center',
-    width: (width - 60) / 3,
+    width: (width - 75) / 3,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

@@ -44,6 +44,13 @@ interface WorkoutCategory {
   icon: string;
 }
 
+const categories: WorkoutCategory[] = [
+  { id: '1', title: 'Strength', icon: 'fitness-center' },
+  { id: '2', title: 'Cardio', icon: 'directions-run' },
+  { id: '3', title: 'Yoga', icon: 'self-improvement' },
+  { id: '4', title: 'HIIT', icon: 'whatshot' }
+];
+
 const workouts: Workout[] = [
   {
     id: '1',
@@ -162,13 +169,6 @@ const workouts: Workout[] = [
       }
     ]
   }
-];
-
-const categories: WorkoutCategory[] = [
-  { id: '1', title: 'Strength', icon: 'fitness-center' },
-  { id: '2', title: 'Cardio', icon: 'directions-run' },
-  { id: '3', title: 'Yoga', icon: 'self-improvement' },
-  { id: '4', title: 'HIIT', icon: 'whatshot' }
 ];
 
 export const WorkoutScreen: React.FC = () => {
