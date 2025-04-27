@@ -26,6 +26,7 @@ type RootStackParamList = {
   ChallengeDetail: {
     challenge: Challenge;
   };
+  Rewards: undefined;
 };
 
 const { width } = Dimensions.get('window');
@@ -164,6 +165,13 @@ export const HomeScreen: React.FC = () => {
           >
             <Ionicons name="stats-chart-outline" size={24} color="#4c669f" />
             <Text style={styles.actionText}>Progress</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => navigation.navigate('Rewards')}
+          >
+            <Ionicons name="trophy-outline" size={24} color="#4c669f" />
+            <Text style={styles.actionText}>Rewards</Text>
           </TouchableOpacity>
         </View>
       </View>
