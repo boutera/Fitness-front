@@ -7,7 +7,19 @@ import { WorkoutScreen } from '../components/WorkoutScreen';
 import { ScheduleScreen } from '../components/ScheduleScreen';
 import { ProgressScreen } from '../components/ProgressScreen';
 import { WorkoutDetailScreen } from '../components/WorkoutDetailScreen';
+import ChallengeDetailScreen from '../components/ChallengeDetailScreen';
 import type { Workout } from '../components/WorkoutScreen';
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  currentDay: number;
+  totalDays: number;
+  requirements: string[];
+  rewards: string[];
+  tips: string[];
+}
 
 export type RootStackParamList = {
   Home: undefined;
@@ -16,6 +28,9 @@ export type RootStackParamList = {
   Progress: undefined;
   WorkoutDetail: {
     workout: Workout;
+  };
+  ChallengeDetail: {
+    challenge: Challenge;
   };
 };
 
@@ -36,6 +51,7 @@ export const AppNavigator = () => {
         <Stack.Screen name="Schedule" component={ScheduleScreen} />
         <Stack.Screen name="Progress" component={ProgressScreen} />
         <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
+        <Stack.Screen name="ChallengeDetail" component={ChallengeDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

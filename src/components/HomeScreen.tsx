@@ -12,20 +12,96 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { Workout } from './WorkoutScreen';  // Import Workout type
+import type { Challenge } from '../navigation/AppNavigator';
 
 type RootStackParamList = {
   Home: undefined;
   Workout: undefined;
   Schedule: undefined;
   Progress: undefined;
+  WorkoutDetail: {
+    workout: Workout;
+  };
+  ChallengeDetail: {
+    challenge: Challenge;
+  };
 };
-
-type NavigationProp = StackNavigationProp<RootStackParamList>;
 
 const { width } = Dimensions.get('window');
 
+// Sample recent workouts data
+const recentWorkouts: Workout[] = [
+  {
+    id: '1',
+    title: 'Full Body Workout',
+    trainer: 'John Smith',
+    duration: '45 min',
+    difficulty: 'Intermediate',
+    calories: 350,
+    description: 'A comprehensive full-body workout targeting all major muscle groups.',
+    equipment: ['Dumbbells', 'Yoga mat'],
+    image: 'https://example.com/full-body-workout.jpg',
+    exercises: []
+  },
+  {
+    id: '2',
+    title: 'HIIT Cardio',
+    trainer: 'Sarah Johnson',
+    duration: '30 min',
+    difficulty: 'Advanced',
+    calories: 450,
+    description: 'High-intensity interval training to boost cardio and burn calories.',
+    equipment: ['None'],
+    image: 'https://example.com/hiit-cardio.jpg',
+    exercises: []
+  },
+  {
+    id: '3',
+    title: 'Yoga Flow',
+    trainer: 'Emma Davis',
+    duration: '60 min',
+    difficulty: 'Beginner',
+    calories: 175,
+    description: 'Relaxing yoga flow focusing on flexibility and mindfulness.',
+    equipment: ['Yoga mat'],
+    image: 'https://example.com/yoga-flow.jpg',
+    exercises: []
+  }
+];
+
+const activeChallenge: Challenge = {
+  id: '1',
+  title: '30 Day Running Streak',
+  description: 'Build a consistent running habit by completing a run every day for 30 days. This challenge helps improve cardiovascular fitness, build endurance, and establish a regular exercise routine.',
+  currentDay: 15,
+  totalDays: 30,
+  requirements: [
+    'Complete at least a 1-mile run each day',
+    'Log your run in the app',
+    'Maintain the streak for 30 consecutive days',
+    'Rest days should include at least a light jog'
+  ],
+  rewards: [
+    'Special Achievement Badge',
+    'Runner\'s Milestone Trophy',
+    '500 Fitness Points',
+    'Access to exclusive running programs'
+  ],
+  tips: [
+    'Start slow and gradually increase your pace',
+    'Stay hydrated before and after your run',
+    'Invest in proper running shoes',
+    'Listen to your body and adjust intensity as needed'
+  ]
+};
+
 export const HomeScreen: React.FC = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  const handleChallengePress = () => {
+    navigation.navigate('ChallengeDetail', { challenge: activeChallenge });
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -96,16 +172,20 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.recentWorkouts}>
         <Text style={styles.sectionTitle}>Recent Workouts</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {[1, 2, 3].map((item) => (
-            <TouchableOpacity key={item} style={styles.workoutCard}>
+          {recentWorkouts.map((workout) => (
+            <TouchableOpacity 
+              key={workout.id} 
+              style={styles.workoutCard}
+              onPress={() => navigation.navigate('WorkoutDetail', { workout })}
+            >
               <View style={styles.workoutImageContainer}>
                 <Image
-                  source={{ uri: 'https://via.placeholder.com/150' }}
+                  source={{ uri: workout.image }}
                   style={styles.workoutImage}
                 />
               </View>
-              <Text style={styles.workoutTitle}>Morning Run</Text>
-              <Text style={styles.workoutSubtitle}>5.2 km • 32 min</Text>
+              <Text style={styles.workoutTitle}>{workout.title}</Text>
+              <Text style={styles.workoutSubtitle}>{workout.duration} • {workout.difficulty}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -116,13 +196,23 @@ export const HomeScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>Active Challenges</Text>
         <View style={styles.challengeCard}>
           <View style={styles.challengeInfo}>
-            <Text style={styles.challengeTitle}>30 Day Running Streak</Text>
-            <Text style={styles.challengeProgress}>Day 15 of 30</Text>
+            <Text style={styles.challengeTitle}>{activeChallenge.title}</Text>
+            <Text style={styles.challengeProgress}>
+              Day {activeChallenge.currentDay} of {activeChallenge.totalDays}
+            </Text>
             <View style={styles.progressBar}>
-              <View style={[styles.progressFill, { width: '50%' }]} />
+              <View 
+                style={[
+                  styles.progressFill, 
+                  { width: `${(activeChallenge.currentDay / activeChallenge.totalDays) * 100}%` }
+                ]} 
+              />
             </View>
           </View>
-          <TouchableOpacity style={styles.challengeButton}>
+          <TouchableOpacity 
+            style={styles.challengeButton}
+            onPress={handleChallengePress}
+          >
             <Text style={styles.challengeButtonText}>View Details</Text>
           </TouchableOpacity>
         </View>
