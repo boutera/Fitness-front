@@ -8,61 +8,172 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 
 const { width } = Dimensions.get('window');
 
-interface WorkoutCategory {
+interface Exercise {
   id: string;
   name: string;
-  icon: string;
-}
-
-interface Workout {
-  id: string;
-  title: string;
-  duration: string;
-  difficulty: string;
-  calories: string;
+  sets: number;
+  reps: number;
+  duration?: string;
+  description: string;
   image: string;
 }
 
-const workoutCategories: WorkoutCategory[] = [
-  { id: '1', name: 'Strength', icon: 'barbell-outline' },
-  { id: '2', name: 'Cardio', icon: 'heart-outline' },
-  { id: '3', name: 'Yoga', icon: 'flower-outline' },
-  { id: '4', name: 'HIIT', icon: 'flame-outline' },
-];
+export interface Workout {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  difficulty: string;
+  calories: number;
+  trainer: string;
+  equipment: string[];
+  exercises: Exercise[];
+  image: string;
+}
 
-const featuredWorkouts: Workout[] = [
+interface WorkoutCategory {
+  id: string;
+  title: string;
+  icon: string;
+}
+
+const workouts: Workout[] = [
   {
     id: '1',
-    title: 'Full Body Strength',
+    title: 'Full Body Workout',
+    trainer: 'John Smith',
     duration: '45 min',
     difficulty: 'Intermediate',
-    calories: '400',
-    image: 'https://via.placeholder.com/300',
+    calories: 350,
+    description: 'A comprehensive full-body workout targeting all major muscle groups.',
+    equipment: ['Dumbbells', 'Yoga mat'],
+    image: 'https://example.com/full-body-workout.jpg',
+    exercises: [
+      {
+        id: '1',
+        name: 'Push-ups',
+        sets: 3,
+        reps: 15,
+        image: 'https://example.com/pushup.jpg',
+        description: 'Classic push-ups targeting chest, shoulders, and triceps.'
+      },
+      {
+        id: '2',
+        name: 'Squats',
+        sets: 4,
+        reps: 12,
+        image: 'https://example.com/squat.jpg',
+        description: 'Traditional bodyweight squats for lower body strength.'
+      },
+      {
+        id: '3',
+        name: 'Plank',
+        sets: 3,
+        reps: 60,
+        image: 'https://example.com/plank.jpg',
+        description: 'Core-strengthening exercise holding a plank position.'
+      }
+    ]
   },
   {
     id: '2',
-    title: 'Cardio Blast',
+    title: 'HIIT Cardio',
+    trainer: 'Sarah Johnson',
     duration: '30 min',
     difficulty: 'Advanced',
-    calories: '350',
-    image: 'https://via.placeholder.com/300',
+    calories: 450,
+    description: 'High-intensity interval training to boost cardio and burn calories.',
+    equipment: ['None'],
+    image: 'https://example.com/hiit-cardio.jpg',
+    exercises: [
+      {
+        id: '4',
+        name: 'Burpees',
+        sets: 4,
+        reps: 20,
+        duration: '45 sec',
+        image: 'https://example.com/burpee.jpg',
+        description: 'Full-body exercise combining a squat, push-up, and jump.'
+      },
+      {
+        id: '5',
+        name: 'Mountain Climbers',
+        sets: 3,
+        reps: 30,
+        duration: '45 sec',
+        image: 'https://example.com/mountain-climber.jpg',
+        description: 'Dynamic exercise targeting core and improving cardio.'
+      },
+      {
+        id: '6',
+        name: 'Jump Rope',
+        sets: 4,
+        reps: 50,
+        duration: '60 sec',
+        image: 'https://example.com/jump-rope.jpg',
+        description: 'Cardio exercise improving coordination and endurance.'
+      }
+    ]
   },
   {
     id: '3',
     title: 'Yoga Flow',
+    trainer: 'Emma Davis',
     duration: '60 min',
     difficulty: 'Beginner',
-    calories: '200',
-    image: 'https://via.placeholder.com/300',
-  },
+    calories: 175,
+    description: 'Relaxing yoga flow focusing on flexibility and mindfulness.',
+    equipment: ['Yoga mat'],
+    image: 'https://example.com/yoga-flow.jpg',
+    exercises: [
+      {
+        id: '7',
+        name: 'Sun Salutation',
+        sets: 3,
+        reps: 5,
+        duration: '60 sec',
+        image: 'https://example.com/sun-salutation.jpg',
+        description: 'Traditional yoga sequence warming up the entire body.'
+      },
+      {
+        id: '8',
+        name: 'Warrior Poses',
+        sets: 2,
+        reps: 8,
+        duration: '45 sec',
+        image: 'https://example.com/warrior.jpg',
+        description: 'Series of standing poses building strength and balance.'
+      },
+      {
+        id: '9',
+        name: 'Child\'s Pose',
+        sets: 2,
+        reps: 3,
+        duration: '60 sec',
+        image: 'https://example.com/child-pose.jpg',
+        description: 'Restorative pose for relaxation and gentle stretching.'
+      }
+    ]
+  }
+];
+
+const categories: WorkoutCategory[] = [
+  { id: '1', title: 'Strength', icon: 'fitness-center' },
+  { id: '2', title: 'Cardio', icon: 'directions-run' },
+  { id: '3', title: 'Yoga', icon: 'self-improvement' },
+  { id: '4', title: 'HIIT', icon: 'whatshot' }
 ];
 
 export const WorkoutScreen: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('1');
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -79,7 +190,7 @@ export const WorkoutScreen: React.FC = () => {
         showsHorizontalScrollIndicator={false}
         style={styles.categoriesContainer}
       >
-        {workoutCategories.map((category) => (
+        {categories.map((category) => (
           <TouchableOpacity
             key={category.id}
             style={[
@@ -88,7 +199,7 @@ export const WorkoutScreen: React.FC = () => {
             ]}
             onPress={() => setSelectedCategory(category.id)}
           >
-            <Ionicons
+            <MaterialIcons
               name={category.icon as any}
               size={24}
               color={selectedCategory === category.id ? '#fff' : '#4c669f'}
@@ -99,7 +210,7 @@ export const WorkoutScreen: React.FC = () => {
                 selectedCategory === category.id && styles.selectedCategoryText,
               ]}
             >
-              {category.name}
+              {category.title}
             </Text>
           </TouchableOpacity>
         ))}
@@ -108,8 +219,12 @@ export const WorkoutScreen: React.FC = () => {
       {/* Featured Workouts */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Featured Workouts</Text>
-        {featuredWorkouts.map((workout) => (
-          <TouchableOpacity key={workout.id} style={styles.workoutCard}>
+        {workouts.map((workout) => (
+          <TouchableOpacity
+            key={workout.id}
+            style={styles.workoutCard}
+            onPress={() => navigation.navigate('WorkoutDetail', { workout })}
+          >
             <Image source={{ uri: workout.image }} style={styles.workoutImage} />
             <View style={styles.workoutInfo}>
               <Text style={styles.workoutTitle}>{workout.title}</Text>

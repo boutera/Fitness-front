@@ -6,12 +6,17 @@ import { HomeScreen } from '../components/HomeScreen';
 import { WorkoutScreen } from '../components/WorkoutScreen';
 import { ScheduleScreen } from '../components/ScheduleScreen';
 import { ProgressScreen } from '../components/ProgressScreen';
+import { WorkoutDetailScreen } from '../components/WorkoutDetailScreen';
+import type { Workout } from '../components/WorkoutScreen';
 
 export type RootStackParamList = {
   Home: undefined;
   Workout: undefined;
   Schedule: undefined;
   Progress: undefined;
+  WorkoutDetail: {
+    workout: Workout;
+  };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -30,6 +35,7 @@ export const AppNavigator = () => {
         <Stack.Screen name="Workout" component={WorkoutScreen} />
         <Stack.Screen name="Schedule" component={ScheduleScreen} />
         <Stack.Screen name="Progress" component={ProgressScreen} />
+        <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
