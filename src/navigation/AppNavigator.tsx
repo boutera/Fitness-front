@@ -10,6 +10,7 @@ import { WorkoutDetailScreen } from '../components/WorkoutDetailScreen';
 import ChallengeDetailScreen from '../components/ChallengeDetailScreen';
 import { RewardsScreen } from '../components/RewardsScreen';
 import type { Workout } from '../components/WorkoutScreen';
+import AuthScreen from '../components/AuthScreen';
 
 export interface Challenge {
   id: string;
@@ -23,11 +24,22 @@ export interface Challenge {
 }
 
 export type RootStackParamList = {
+  Auth: undefined;
   Home: undefined;
   Workout: undefined;
-  Schedule: undefined;
+  Schedule: {
+    newWorkout?: {
+      id: string;
+      title: string;
+      time: string;
+      duration: string;
+      trainer: string;
+      type: string;
+    };
+  };
   Progress: undefined;
   Rewards: undefined;
+  Profile: undefined;
   WorkoutDetail: {
     workout: Workout;
   };
@@ -38,16 +50,17 @@ export type RootStackParamList = {
 
 const Stack = createStackNavigator<RootStackParamList>();
 
-export const AppNavigator = () => {
+export const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Home"
+        initialRouteName="Auth"
         screenOptions={{
           headerShown: false,
           cardStyle: { backgroundColor: '#f5f5f5' },
         }}
       >
+        <Stack.Screen name="Auth" component={AuthScreen} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Workout" component={WorkoutScreen} />
         <Stack.Screen name="Schedule" component={ScheduleScreen} />
