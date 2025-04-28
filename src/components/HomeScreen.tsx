@@ -42,8 +42,33 @@ const recentWorkouts: Workout[] = [
     calories: 350,
     description: 'A comprehensive full-body workout targeting all major muscle groups.',
     equipment: ['Dumbbells', 'Yoga mat'],
-    image: 'https://example.com/full-body-workout.jpg',
-    exercises: []
+    image: require('../../assets/Full-body-workout.jpg'),
+    exercises: [
+      {
+        id: '1',
+        name: 'Push-ups',
+        sets: 3,
+        reps: 15,
+        image: 'https://example.com/pushup.jpg',
+        description: 'Classic push-ups targeting chest, shoulders, and triceps.'
+      },
+      {
+        id: '2',
+        name: 'Squats',
+        sets: 4,
+        reps: 12,
+        image: 'https://example.com/squat.jpg',
+        description: 'Traditional bodyweight squats for lower body strength.'
+      },
+      {
+        id: '3',
+        name: 'Plank',
+        sets: 3,
+        reps: 60,
+        image: 'https://example.com/plank.jpg',
+        description: 'Core-strengthening exercise holding a plank position.'
+      }
+    ]
   },
   {
     id: '2',
@@ -54,8 +79,36 @@ const recentWorkouts: Workout[] = [
     calories: 450,
     description: 'High-intensity interval training to boost cardio and burn calories.',
     equipment: ['None'],
-    image: 'https://example.com/hiit-cardio.jpg',
-    exercises: []
+    image: require('../../assets/Hiit-cardio.gif'),
+    exercises: [
+      {
+        id: '4',
+        name: 'Burpees',
+        sets: 4,
+        reps: 20,
+        duration: '45 sec',
+        image: 'https://example.com/burpee.jpg',
+        description: 'Full-body exercise combining a squat, push-up, and jump.'
+      },
+      {
+        id: '5',
+        name: 'Mountain Climbers',
+        sets: 3,
+        reps: 30,
+        duration: '45 sec',
+        image: 'https://example.com/mountain-climber.jpg',
+        description: 'Dynamic exercise targeting core and improving cardio.'
+      },
+      {
+        id: '6',
+        name: 'Jump Rope',
+        sets: 4,
+        reps: 50,
+        duration: '60 sec',
+        image: 'https://example.com/jump-rope.jpg',
+        description: 'Cardio exercise improving coordination and endurance.'
+      }
+    ]
   },
   {
     id: '3',
@@ -66,8 +119,36 @@ const recentWorkouts: Workout[] = [
     calories: 175,
     description: 'Relaxing yoga flow focusing on flexibility and mindfulness.',
     equipment: ['Yoga mat'],
-    image: 'https://example.com/yoga-flow.jpg',
-    exercises: []
+    image: require('../../assets/yoga-flow.png'),
+    exercises: [
+      {
+        id: '7',
+        name: 'Sun Salutation',
+        sets: 3,
+        reps: 5,
+        duration: '60 sec',
+        image: 'https://example.com/sun-salutation.jpg',
+        description: 'Traditional yoga sequence warming up the entire body.'
+      },
+      {
+        id: '8',
+        name: 'Warrior Poses',
+        sets: 2,
+        reps: 8,
+        duration: '45 sec',
+        image: 'https://example.com/warrior.jpg',
+        description: 'Series of standing poses building strength and balance.'
+      },
+      {
+        id: '9',
+        name: 'Child\'s Pose',
+        sets: 2,
+        reps: 3,
+        duration: '60 sec',
+        image: 'https://example.com/child-pose.jpg',
+        description: 'Restorative pose for relaxation and gentle stretching.'
+      }
+    ]
   }
 ];
 
@@ -194,7 +275,7 @@ export const HomeScreen: React.FC = () => {
             >
               <View style={styles.workoutImageContainer}>
                 <Image
-                  source={{ uri: workout.image }}
+                  source={workout.image}
                   style={styles.workoutImage}
                 />
               </View>

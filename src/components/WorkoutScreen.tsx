@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  ImageSourcePropType,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -15,28 +16,28 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 
 const { width } = Dimensions.get('window');
 
-interface Exercise {
+type Exercise = {
   id: string;
   name: string;
   sets: number;
-  reps: number;
+  reps?: number;
   duration?: string;
-  description: string;
   image: string;
-}
+  description: string;
+};
 
-export interface Workout {
+export type Workout = {
   id: string;
   title: string;
-  description: string;
+  trainer: string;
   duration: string;
   difficulty: string;
   calories: number;
-  trainer: string;
+  description: string;
   equipment: string[];
+  image: ImageSourcePropType;
   exercises: Exercise[];
-  image: string;
-}
+};
 
 interface WorkoutCategory {
   id: string;
@@ -61,7 +62,7 @@ const workouts: Workout[] = [
     calories: 350,
     description: 'A comprehensive full-body workout targeting all major muscle groups.',
     equipment: ['Dumbbells', 'Yoga mat'],
-    image: 'https://example.com/full-body-workout.jpg',
+    image: require('../../assets/Full-body-workout.jpg'),
     exercises: [
       {
         id: '1',
@@ -98,7 +99,7 @@ const workouts: Workout[] = [
     calories: 450,
     description: 'High-intensity interval training to boost cardio and burn calories.',
     equipment: ['None'],
-    image: 'https://example.com/hiit-cardio.jpg',
+    image: require('../../assets/Hiit-cardio.gif'),
     exercises: [
       {
         id: '4',
@@ -138,7 +139,7 @@ const workouts: Workout[] = [
     calories: 175,
     description: 'Relaxing yoga flow focusing on flexibility and mindfulness.',
     equipment: ['Yoga mat'],
-    image: 'https://example.com/yoga-flow.jpg',
+    image: require('../../assets/yoga-flow.png'),
     exercises: [
       {
         id: '7',
@@ -225,7 +226,7 @@ export const WorkoutScreen: React.FC = () => {
             style={styles.workoutCard}
             onPress={() => navigation.navigate('WorkoutDetail', { workout })}
           >
-            <Image source={{ uri: workout.image }} style={styles.workoutImage} />
+            <Image source={workout.image} style={styles.workoutImage} />
             <View style={styles.workoutInfo}>
               <Text style={styles.workoutTitle}>{workout.title}</Text>
               <View style={styles.workoutDetails}>

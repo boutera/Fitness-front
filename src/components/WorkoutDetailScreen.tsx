@@ -19,7 +19,10 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
 
   return (
     <ScrollView style={styles.container}>
-      <Image source={{ uri: workout.image }} style={styles.image} />
+      <Image 
+        source={typeof workout.image === 'string' ? { uri: workout.image } : workout.image} 
+        style={styles.image} 
+      />
       <View style={styles.content}>
         <Text style={styles.title}>{workout.title}</Text>
         <Text style={styles.trainer}>by {workout.trainer}</Text>
