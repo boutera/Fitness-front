@@ -28,7 +28,16 @@ export const HomeScreen = () => {
           <Ionicons name="person-circle" size={32} color="#4c669f" />
         </TouchableOpacity>
       </View>
-      {/* Rest of your home screen content */}
+
+      <View style={styles.quickActions}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => navigation.navigate('ScheduleWorkout')}
+        >
+          <Ionicons name="calendar" size={24} color="#4c669f" />
+          <Text style={styles.actionText}>Schedule Workout</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -63,5 +72,25 @@ const styles = StyleSheet.create({
   },
   profileButton: {
     padding: 8,
+  },
+  quickActions: {
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  actionButton: {
+    alignItems: 'center',
+    backgroundColor: '#f8f9fa',
+    padding: 15,
+    borderRadius: 10,
+    width: '45%',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  actionText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
   },
 }); 

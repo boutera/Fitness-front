@@ -11,6 +11,9 @@ import { RewardsScreen } from '../components/RewardsScreen';
 import { WorkoutDetailScreen } from '../components/WorkoutDetailScreen';
 import { ChallengeDetailScreen } from '../components/ChallengeDetailScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { ChallengesScreen } from '../screens/ChallengesScreen';
+import ScheduleWorkoutScreen from '../screens/ScheduleWorkoutScreen';
+import { ActivityIndicator, View } from 'react-native';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -22,12 +25,24 @@ export type RootStackParamList = {
   WorkoutDetail: { workoutId: string };
   ChallengeDetail: { challengeId: string };
   Profile: undefined;
+  ScheduleWorkout: undefined;
+  Challenges: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
 
+const LoadingScreen = () => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <ActivityIndicator size="large" color="#4c669f" />
+  </View>
+);
+
 export const AppNavigator: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <NavigationContainer>
@@ -49,6 +64,18 @@ export const AppNavigator: React.FC = () => {
             <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
             <Stack.Screen name="ChallengeDetail" component={ChallengeDetailScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="Challenges" component={ChallengesScreen} />
+            <Stack.Screen 
+              name="ScheduleWorkout" 
+              component={ScheduleWorkoutScreen}
+              options={{ 
+                title: 'Schedule Workout',
+                headerStyle: {
+                  backgroundColor: '#f8f9fa',
+                },
+                headerTintColor: '#333',
+              }}
+            />
           </>
         )}
       </Stack.Navigator>

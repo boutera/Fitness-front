@@ -8,8 +8,65 @@ type ChallengeDetailScreenProps = {
   route: RouteProp<RootStackParamList, 'ChallengeDetail'>;
 };
 
+// Sample challenge data - replace this with your actual data fetching logic
+const sampleChallenges: { [key: string]: any } = {
+  '1': {
+    id: '1',
+    title: '30 Day Running Streak',
+    description: 'Build a consistent running habit by completing a run every day for 30 days.',
+    currentDay: 5,
+    totalDays: 30,
+    requirements: [
+      'Run at least 1 mile per day',
+      'Track your runs using the app',
+      'Share your progress with friends'
+    ],
+    rewards: [
+      'Improved cardiovascular health',
+      'Increased endurance',
+      'Badge of achievement'
+    ],
+    tips: [
+      'Start with a comfortable pace',
+      'Stay hydrated',
+      'Listen to your body'
+    ]
+  },
+  '2': {
+    id: '2',
+    title: 'Core Strength Challenge',
+    description: 'Strengthen your core with daily exercises for 21 days.',
+    currentDay: 3,
+    totalDays: 21,
+    requirements: [
+      'Complete daily core exercises',
+      'Follow the provided workout plan',
+      'Track your progress'
+    ],
+    rewards: [
+      'Stronger core muscles',
+      'Improved posture',
+      'Better balance'
+    ],
+    tips: [
+      'Focus on form over speed',
+      'Engage your core throughout',
+      'Take rest days when needed'
+    ]
+  }
+};
+
 export const ChallengeDetailScreen: React.FC<ChallengeDetailScreenProps> = ({ route }) => {
-  const { challenge } = route.params;
+  const { challengeId } = route.params;
+  const challenge = sampleChallenges[challengeId];
+
+  if (!challenge) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>Challenge not found</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -35,7 +92,7 @@ export const ChallengeDetailScreen: React.FC<ChallengeDetailScreenProps> = ({ ro
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Requirements</Text>
-        {challenge.requirements.map((requirement, index) => (
+        {challenge.requirements.map((requirement: string, index: number) => (
           <View key={index} style={styles.requirementItem}>
             <Ionicons name="checkmark-circle" size={24} color="#4c669f" />
             <Text style={styles.requirementText}>{requirement}</Text>
@@ -45,7 +102,7 @@ export const ChallengeDetailScreen: React.FC<ChallengeDetailScreenProps> = ({ ro
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Rewards</Text>
-        {challenge.rewards.map((reward, index) => (
+        {challenge.rewards.map((reward: string, index: number) => (
           <View key={index} style={styles.rewardItem}>
             <Ionicons name="trophy" size={24} color="#ffd700" />
             <Text style={styles.rewardText}>{reward}</Text>
@@ -55,7 +112,7 @@ export const ChallengeDetailScreen: React.FC<ChallengeDetailScreenProps> = ({ ro
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Tips</Text>
-        {challenge.tips.map((tip, index) => (
+        {challenge.tips.map((tip: string, index: number) => (
           <View key={index} style={styles.tipItem}>
             <Ionicons name="bulb" size={24} color="#4c669f" />
             <Text style={styles.tipText}>{tip}</Text>
@@ -70,6 +127,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#ff0000',
+    textAlign: 'center',
+    marginTop: 20,
   },
   header: {
     padding: 20,

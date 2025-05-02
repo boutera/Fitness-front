@@ -48,15 +48,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAuth = async () => {
     try {
       const userData = await AsyncStorage.getItem('user');
-      console.log('Retrieved user data from storage:', userData);
+      console.log('Retrieved user data from storage:', userData ? 'exists' : 'not found');
+      
       if (userData) {
         const user = JSON.parse(userData);
-        console.log('Parsed user data:', user);
+        console.log('Parsed user data:', { ...user, token: user.token ? 'exists' : 'missing' });
+        
+        if (!user.token) {
+          console.log('No token found in stored user data');
+          await AsyncStorage.removeItem('user');
+          setState({
+            isAuthenticated: false,
+            user: null,
+            error: null,
+            isLoading: false,
+          });
+          return;
+        }
+
         // Verify the token is still valid by making a request to the backend
         const currentUser = await getCurrentUser(user.token);
-        console.log('Current user from API:', currentUser);
         
         if (currentUser) {
+          console.log('Token is valid, user authenticated');
           setState({
             isAuthenticated: true,
             user: { ...currentUser, token: user.token },
@@ -64,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             isLoading: false,
           });
         } else {
-          // Token is invalid, clear stored data
+          console.log('Token is invalid or expired, clearing stored data');
           await AsyncStorage.removeItem('user');
           setState({
             isAuthenticated: false,
@@ -74,6 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
         }
       } else {
+        console.log('No stored user data found');
         setState(prev => ({
           ...prev,
           isLoading: false,
@@ -81,10 +96,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error checking auth:', error);
-      setState(prev => ({
-        ...prev,
+      // Clear any potentially corrupted data
+      await AsyncStorage.removeItem('user');
+      setState({
+        isAuthenticated: false,
+        user: null,
+        error: null,
         isLoading: false,
-      }));
+      });
     }
   };
 

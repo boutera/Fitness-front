@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,12 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../types/navigation';
+
+type ScheduleScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Schedule'>;
+type ScheduleScreenRouteProp = RouteProp<RootStackParamList, 'Schedule'>;
 
 const { width } = Dimensions.get('window');
 
@@ -18,11 +24,12 @@ interface ScheduledWorkout {
   duration: string;
   trainer: string;
   type: string;
+  date: Date;
 }
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-const scheduledWorkouts: ScheduledWorkout[] = [
+const initialWorkouts: ScheduledWorkout[] = [
   {
     id: '1',
     title: 'Morning Yoga',
@@ -30,6 +37,7 @@ const scheduledWorkouts: ScheduledWorkout[] = [
     duration: '60 min',
     trainer: 'Sarah Johnson',
     type: 'Yoga',
+    date: new Date(),
   },
   {
     id: '2',
@@ -38,6 +46,7 @@ const scheduledWorkouts: ScheduledWorkout[] = [
     duration: '45 min',
     trainer: 'Mike Thompson',
     type: 'HIIT',
+    date: new Date(),
   },
   {
     id: '3',
@@ -46,11 +55,31 @@ const scheduledWorkouts: ScheduledWorkout[] = [
     duration: '50 min',
     trainer: 'David Wilson',
     type: 'Strength',
+    date: new Date(),
   },
 ];
 
 export const ScheduleScreen: React.FC = () => {
+  const navigation = useNavigation<ScheduleScreenNavigationProp>();
+  const route = useRoute<ScheduleScreenRouteProp>();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [scheduledWorkouts, setScheduledWorkouts] = useState<ScheduledWorkout[]>(initialWorkouts);
+
+  useEffect(() => {
+    if (route.params?.newWorkout) {
+      const { title, date } = route.params.newWorkout;
+      const newWorkout: ScheduledWorkout = {
+        id: Date.now().toString(),
+        title,
+        time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        duration: '60 min',
+        trainer: 'You',
+        type: 'Custom',
+        date,
+      };
+      setScheduledWorkouts(prevWorkouts => [...prevWorkouts, newWorkout]);
+    }
+  }, [route.params]);
 
   const generateWeekDates = () => {
     const dates = [];
@@ -73,6 +102,17 @@ export const ScheduleScreen: React.FC = () => {
       date.getMonth() === today.getMonth() &&
       date.getFullYear() === today.getFullYear()
     );
+  };
+
+  const getWorkoutsForSelectedDate = () => {
+    return scheduledWorkouts.filter(workout => {
+      const workoutDate = new Date(workout.date);
+      return (
+        workoutDate.getDate() === selectedDate.getDate() &&
+        workoutDate.getMonth() === selectedDate.getMonth() &&
+        workoutDate.getFullYear() === selectedDate.getFullYear()
+      );
+    });
   };
 
   return (
@@ -120,7 +160,7 @@ export const ScheduleScreen: React.FC = () => {
 
       {/* Scheduled Workouts */}
       <ScrollView style={styles.workoutList}>
-        {scheduledWorkouts.map((workout) => (
+        {getWorkoutsForSelectedDate().map((workout) => (
           <View key={workout.id} style={styles.workoutCard}>
             <View style={styles.timeContainer}>
               <Text style={styles.timeText}>{workout.time}</Text>
@@ -143,7 +183,10 @@ export const ScheduleScreen: React.FC = () => {
       </ScrollView>
 
       {/* Add Workout Button */}
-      <TouchableOpacity style={styles.floatingButton}>
+      <TouchableOpacity 
+        style={styles.floatingButton}
+        onPress={() => navigation.navigate('ScheduleWorkout')}
+      >
         <Text style={styles.floatingButtonText}>Schedule Workout</Text>
       </TouchableOpacity>
     </View>

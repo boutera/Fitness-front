@@ -4,7 +4,7 @@ import { Workout } from '../types/workout';
 // For Android emulator, use 10.0.2.2 instead of localhost
 // For iOS simulator, use localhost
 // For physical devices, use your computer's IP address
-const API_URL = 'http://192.168.11.119:8080/api'; // For Android emulator
+const API_URL = 'http://192.168.11.120:8080/api'; // For Android emulator
 // const API_URL = 'http://localhost:8080/api'; // For iOS simulator
 // const API_URL = 'http://192.168.11.119:8080/api'; // For physical devices
 

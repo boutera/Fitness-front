@@ -16,8 +16,23 @@ type WorkoutDetailScreenProps = {
 };
 
 export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route }) => {
-  const { workout } = route.params;
+  const { workoutId } = route.params;
   const [isCompleted, setIsCompleted] = useState(false);
+
+  // TODO: Fetch workout data using workoutId
+  const workout = {
+    id: workoutId,
+    title: 'Sample Workout',
+    description: 'This is a sample workout',
+    duration: '30 minutes',
+    difficulty: 'Intermediate',
+    image: 'hiit-cardio.gif',
+    trainer: 'John Doe',
+    equipment: ['Mat', 'Dumbbells'],
+    exercises: [
+      { name: 'Jump Squats', sets: 3, reps: 15, description: 'Explosive squat jumps' }
+    ]
+  };
 
   const handleComplete = () => {
     setIsCompleted(true);
@@ -47,12 +62,6 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
             <Text style={styles.statLabel}>Difficulty</Text>
             <Text style={styles.statValue}>{workout.difficulty}</Text>
           </View>
-          {workout.calories && (
-            <View style={styles.stat}>
-              <Text style={styles.statLabel}>Calories</Text>
-              <Text style={styles.statValue}>{workout.calories}</Text>
-            </View>
-          )}
         </View>
 
         {!isCompleted ? (
@@ -72,7 +81,7 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
 
         <Text style={styles.sectionTitle}>Equipment Needed</Text>
         {workout.equipment && workout.equipment.length > 0 ? (
-          workout.equipment.map((item, index) => (
+          workout.equipment.map((item: string, index: number) => (
             <Text key={index} style={styles.equipmentItem}>• {item}</Text>
           ))
         ) : (
@@ -81,7 +90,7 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
 
         <Text style={styles.sectionTitle}>Exercises</Text>
         {workout.exercises && workout.exercises.length > 0 ? (
-          workout.exercises.map((exercise, index) => (
+          workout.exercises.map((exercise: { name: string; sets: number; reps: number; description: string; duration?: string }, index: number) => (
             <View key={index} style={styles.exerciseItem}>
               <Text style={styles.exerciseName}>{exercise.name}</Text>
               <Text style={styles.exerciseDetails}>

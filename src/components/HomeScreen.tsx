@@ -138,38 +138,62 @@ const recentWorkouts = [
   }
 ];
 
-const activeChallenge = {
-  id: '1',
-  title: '30 Day Running Streak',
-  description: 'Build a consistent running habit by completing a run every day for 30 days.',
-  currentDay: 15,
-  totalDays: 30,
-  requirements: [
-    'Complete at least a 1-mile run each day',
-    'Log your run in the app',
-    'Maintain the streak for 30 consecutive days',
-    'Rest days should include at least a light jog'
-  ],
-  rewards: [
-    'Special Achievement Badge',
-    'Runner\'s Milestone Trophy',
-    '500 Fitness Points',
-    'Access to exclusive running programs'
-  ],
-  tips: [
-    'Start slow and gradually increase your pace',
-    'Stay hydrated before and after your run',
-    'Invest in proper running shoes',
-    'Listen to your body and adjust intensity as needed'
-  ]
-};
+// Update the activeChallenge to be an array and add null checks
+const activeChallenges = [
+  {
+    id: '1',
+    title: '30 Day Running Streak',
+    description: 'Build a consistent running habit by completing a run every day for 30 days.',
+    currentDay: 15,
+    totalDays: 30,
+    requirements: [
+      'Complete at least a 1-mile run each day',
+      'Log your run in the app',
+      'Maintain the streak for 30 consecutive days',
+      'Rest days should include at least a light jog'
+    ],
+    rewards: [
+      'Special Achievement Badge',
+      'Runner\'s Milestone Trophy',
+      '500 Fitness Points',
+      'Access to exclusive running programs'
+    ],
+    tips: [
+      'Start slow and gradually increase your pace',
+      'Stay hydrated before and after your run',
+      'Invest in proper running shoes',
+      'Listen to your body and adjust intensity as needed'
+    ]
+  },
+  {
+    id: '2',
+    title: 'Core Strength Challenge',
+    description: 'Strengthen your core with daily exercises for 21 days.',
+    currentDay: 7,
+    totalDays: 21,
+    requirements: [
+      'Complete core exercises daily',
+      'Track your progress',
+      'Increase intensity gradually'
+    ],
+    rewards: [
+      'Core Strength Badge',
+      '300 Fitness Points'
+    ],
+    tips: [
+      'Focus on form over speed',
+      'Engage your core throughout',
+      'Take rest days when needed'
+    ]
+  }
+];
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { user } = useAuth();
 
-  const handleChallengePress = () => {
-    navigation.navigate('ChallengeDetail', { challengeId: '1' });
+  const handleChallengePress = (challengeId: string) => {
+    navigation.navigate('ChallengeDetail', { challengeId });
   };
 
   return (
@@ -281,28 +305,42 @@ export const HomeScreen: React.FC = () => {
       {/* Challenges Section */}
       <View style={styles.challenges}>
         <Text style={styles.sectionTitle}>Active Challenges</Text>
-        <View style={styles.challengeCard}>
-          <View style={styles.challengeInfo}>
-            <Text style={styles.challengeTitle}>{activeChallenge.title}</Text>
-            <Text style={styles.challengeProgress}>
-              Day {activeChallenge.currentDay} of {activeChallenge.totalDays}
-            </Text>
-            <View style={styles.progressBar}>
-              <View 
-                style={[
-                  styles.progressFill, 
-                  { width: `${(activeChallenge.currentDay / activeChallenge.totalDays) * 100}%` }
-                ]} 
-              />
+        {activeChallenges.length > 0 ? (
+          activeChallenges.map((challenge) => (
+            <View key={challenge.id} style={styles.challengeCard}>
+              <View style={styles.challengeInfo}>
+                <Text style={styles.challengeTitle}>{challenge.title}</Text>
+                <Text style={styles.challengeProgress}>
+                  Day {challenge.currentDay} of {challenge.totalDays}
+                </Text>
+                <View style={styles.progressBar}>
+                  <View 
+                    style={[
+                      styles.progressFill, 
+                      { width: `${(challenge.currentDay / challenge.totalDays) * 100}%` }
+                    ]} 
+                  />
+                </View>
+              </View>
+              <TouchableOpacity 
+                style={styles.challengeButton}
+                onPress={() => handleChallengePress(challenge.id)}
+              >
+                <Text style={styles.challengeButtonText}>View Details</Text>
+              </TouchableOpacity>
             </View>
+          ))
+        ) : (
+          <View style={styles.noChallengesCard}>
+            <Text style={styles.noChallengesText}>No active challenges</Text>
+            <TouchableOpacity 
+              style={styles.exploreButton}
+              onPress={() => navigation.navigate('Challenges')}
+            >
+              <Text style={styles.exploreButtonText}>Explore Challenges</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity 
-            style={styles.challengeButton}
-            onPress={handleChallengePress}
-          >
-            <Text style={styles.challengeButtonText}>View Details</Text>
-          </TouchableOpacity>
-        </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -442,12 +480,12 @@ const styles = StyleSheet.create({
   },
   challenges: {
     padding: 20,
-    paddingBottom: 40,
   },
   challengeCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 20,
+    padding: 15,
+    marginBottom: 15,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
@@ -461,17 +499,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 5,
   },
   challengeProgress: {
     fontSize: 14,
     color: '#666',
-    marginTop: 5,
+    marginBottom: 10,
   },
   progressBar: {
     height: 6,
     backgroundColor: '#f0f0f0',
     borderRadius: 3,
-    marginTop: 10,
+    overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
@@ -486,6 +525,35 @@ const styles = StyleSheet.create({
   },
   challengeButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  noChallengesCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+  },
+  noChallengesText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 15,
+  },
+  exploreButton: {
+    backgroundColor: '#4c669f',
+    padding: 12,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+  },
+  exploreButtonText: {
+    color: '#fff',
+    fontSize: 16,
     fontWeight: 'bold',
   },
 }); 

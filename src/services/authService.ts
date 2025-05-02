@@ -82,7 +82,12 @@ export const logoutApi = async (token: string): Promise<void> => {
 };
 
 export const getCurrentUser = async (token: string): Promise<User | null> => {
-  console.log('Getting current user with token:', token);
+  if (!token) {
+    console.log('No token provided for getCurrentUser');
+    return null;
+  }
+
+  console.log('Getting current user with token:', token.substring(0, 10) + '...');
   try {
     const response = await fetch(`${API_URL}/auth/me`, {
       headers: {
@@ -90,6 +95,11 @@ export const getCurrentUser = async (token: string): Promise<User | null> => {
         'Content-Type': 'application/json',
       },
     });
+
+    if (response.status === 401) {
+      console.log('Token is invalid or expired');
+      return null;
+    }
 
     if (!response.ok) {
       console.error('Get current user error:', response.status);
@@ -100,7 +110,7 @@ export const getCurrentUser = async (token: string): Promise<User | null> => {
     console.log('Current user response:', userData);
     return userData;
   } catch (error) {
-    console.error('Error getting current user:', error);
+    console.error('Error fetching current user:', error);
     return null;
   }
 }; 

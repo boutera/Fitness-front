@@ -8,4 +8,5 @@ export type RootStackParamList = {
   WorkoutDetail: { workoutId: string };
   ChallengeDetail: { challengeId: string };
   Profile: undefined;
+  ScheduleWorkout: undefined;
 }; 
