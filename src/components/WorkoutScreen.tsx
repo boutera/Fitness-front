@@ -18,6 +18,12 @@ import { workoutService } from '../services/workoutService';
 
 const { width } = Dimensions.get('window');
 
+const imageMap: { [key: string]: ImageSourcePropType } = {
+  'hiit-cardio.gif': require('../../assets/hiit-cardio.gif'),
+  'full-body-workout.jpg': require('../../assets/full-body-workout.jpg'),
+  'yoga-flow.png': require('../../assets/yoga-flow.png'),
+};
+
 interface WorkoutCategory {
   id: string;
   title: string;
@@ -44,7 +50,9 @@ const WorkoutScreen: React.FC = () => {
 
   const loadWorkouts = async () => {
     try {
+      console.log('Loading workouts...');
       const data = await workoutService.getAllWorkouts();
+      console.log('Loaded workouts:', data);
       setWorkouts(data);
     } catch (error) {
       console.error('Error loading workouts:', error);
@@ -53,27 +61,31 @@ const WorkoutScreen: React.FC = () => {
     }
   };
 
-  const renderWorkoutItem = ({ item }: { item: Workout }) => (
-    <TouchableOpacity
-      style={styles.workoutCard}
-      onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}
-    >
-      <Image
-        source={ require('../../assets/yoga-flow.png' )}
-        style={styles.workoutImage}
-        resizeMode="cover"
-      />
-      <View style={styles.workoutInfo}>
-        <Text style={styles.workoutTitle}>{item.title}</Text>
-        <Text style={styles.workoutDescription}>{item.description}</Text>
-        <View style={styles.workoutMeta}>
-          <Text style={styles.workoutDuration}>{item.duration} min</Text>
-          <Text style={styles.workoutDifficulty}>{item.difficulty}</Text>
-          <Text style={styles.workoutType}>{item.type}</Text>
+  const renderWorkoutItem = ({ item }: { item: Workout }) => {
+    console.log('Rendering workout item:', item);
+    return (
+      <TouchableOpacity
+        style={styles.workoutCard}
+        onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}
+      >
+        <Image
+          source={imageMap[item.image]
+          }
+          style={styles.workoutImage}
+          resizeMode="cover"
+        />
+        <View style={styles.workoutInfo}>
+          <Text style={styles.workoutTitle}>{item.title}</Text>
+          <Text style={styles.workoutDescription}>{item.description}</Text>
+          <View style={styles.workoutMeta}>
+            <Text style={styles.workoutDuration}>{item.duration} min</Text>
+            <Text style={styles.workoutDifficulty}>{item.difficulty}</Text>
+            <Text style={styles.workoutType}>{item.type}</Text>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
   const renderHeader = () => (
     <View>

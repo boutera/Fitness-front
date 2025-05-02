@@ -6,21 +6,22 @@ export interface Exercise {
   description: string;
   sets: number;
   reps: number;
-  duration?: number; // in seconds, for timed exercises
-  restTime: number; // in seconds
-  imageUrl?: string;
-  videoUrl?: string;
+  duration?: string;
+  image?: string;
 }
 
 export interface Workout {
   id: string;
   title: string;
   description: string;
-  duration: number; // in minutes
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
-  type: 'Strength' | 'Cardio' | 'Yoga' | 'HIIT';
-  imageUrl: string;
-  exercises: Exercise[];
-  createdAt: Date;
-  updatedAt: Date;
+  duration: string;
+  difficulty: string;
+  type: string;
+  image: string;
+  trainer: string;
+  calories?: number;
+  equipment?: string[];
+  exercises?: Exercise[];
+  createdAt?: Date;
+  updatedAt?: Date;
 } 

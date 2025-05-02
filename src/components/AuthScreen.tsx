@@ -8,37 +8,34 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../context/AuthContext';
 
 type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Auth'>;
 
-const AuthScreen: React.FC = () => {
+export const AuthScreen: React.FC = () => {
   const navigation = useNavigation<AuthScreenNavigationProp>();
   const [isLogin, setIsLogin] = useState(true);
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const { login, register, error } = useAuth();
 
-  const handleSubmit = () => {
-    if (isLogin) {
-      // Handle login
-      console.log('Login with:', { email, password });
-      // After successful login, navigate to Home
-      navigation.navigate('Home');
-    } else {
-      // Handle registration
-      if (password !== confirmPassword) {
-        alert('Passwords do not match!');
-        return;
+  const handleSubmit = async () => {
+    try {
+      if (isLogin) {
+        await login({ username, password });
+      } else {
+        await register({ username, email, password });
       }
-      console.log('Register with:', { name, email, password });
-      // After successful registration, navigate to Home
-      navigation.navigate('Home');
+    } catch (err) {
+      const error = err as Error;
+      Alert.alert('Error', error.message || 'Something went wrong');
     }
   };
 
@@ -49,37 +46,37 @@ const AuthScreen: React.FC = () => {
     >
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <Text style={styles.title}>{isLogin ? 'Welcome Back' : 'Create Account'}</Text>
+          <Text style={styles.title}>{isLogin ? 'Login' : 'Register'}</Text>
           <Text style={styles.subtitle}>
             {isLogin ? 'Sign in to continue' : 'Sign up to get started'}
           </Text>
         </View>
 
         <View style={styles.form}>
-          {!isLogin && (
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Full Name</Text>
-              <TextInput
-                style={styles.input}
-                value={name}
-                onChangeText={setName}
-                placeholder="Enter your full name"
-                autoCapitalize="words"
-              />
-            </View>
-          )}
-
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>Username</Text>
             <TextInput
               style={styles.input}
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Enter your email"
-              keyboardType="email-address"
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Enter your username"
               autoCapitalize="none"
             />
           </View>
+
+          {!isLogin && (
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+          )}
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Password</Text>
@@ -92,22 +89,11 @@ const AuthScreen: React.FC = () => {
             />
           </View>
 
-          {!isLogin && (
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirm Password</Text>
-              <TextInput
-                style={styles.input}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                placeholder="Confirm your password"
-                secureTextEntry
-              />
-            </View>
-          )}
+          {error && <Text style={styles.error}>{error}</Text>}
 
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.submitButtonText}>
-              {isLogin ? 'Sign In' : 'Create Account'}
+              {isLogin ? 'Login' : 'Register'}
             </Text>
           </TouchableOpacity>
 
@@ -117,8 +103,8 @@ const AuthScreen: React.FC = () => {
           >
             <Text style={styles.switchButtonText}>
               {isLogin
-                ? "Don't have an account? Sign Up"
-                : 'Already have an account? Sign In'}
+                ? "Don't have an account? Register"
+                : 'Already have an account? Login'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -224,6 +210,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 10,
+  },
+  error: {
+    color: 'red',
+    textAlign: 'center',
+    marginBottom: 10,
   },
 });
 

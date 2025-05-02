@@ -42,7 +42,7 @@ const recentWorkouts: Workout[] = [
     calories: 350,
     description: 'A comprehensive full-body workout targeting all major muscle groups.',
     equipment: ['Dumbbells', 'Yoga mat'],
-    image: require('../../assets/Full-body-workout.jpg'),
+    image: require('../../assets/full-body-workout.jpg'),
     exercises: [
       {
         id: '1',
@@ -79,7 +79,7 @@ const recentWorkouts: Workout[] = [
     calories: 450,
     description: 'High-intensity interval training to boost cardio and burn calories.',
     equipment: ['None'],
-    image: require('../../assets/Hiit-cardio.gif'),
+    image: require('../../assets/hiit-cardio.gif'),
     exercises: [
       {
         id: '4',

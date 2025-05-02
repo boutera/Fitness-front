@@ -1,8 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ImageSourcePropType } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/AppNavigator';
 import { Ionicons } from '@expo/vector-icons';
+import { Workout } from '../types/workout';
+
+const imageMap: { [key: string]: ImageSourcePropType } = {
+  'hiit-cardio.gif': require('../../assets/hiit-cardio.gif'),
+  'full-body-workout.jpg': require('../../assets/full-body-workout.jpg'),
+  'yoga-flow.png': require('../../assets/yoga-flow.png'),
+};
 
 type WorkoutDetailScreenProps = {
   route: RouteProp<RootStackParamList, 'WorkoutDetail'>;
@@ -20,7 +27,11 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
   return (
     <ScrollView style={styles.container}>
       <Image 
-        source={typeof workout.image === 'string' ? { uri: workout.image } : workout.image} 
+        source={
+          typeof workout.image === 'string'
+            ? imageMap[workout.image] || { uri: `../../assets/${workout.image}` }
+            : workout.image
+        }
         style={styles.image} 
       />
       <View style={styles.content}>
@@ -36,10 +47,12 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
             <Text style={styles.statLabel}>Difficulty</Text>
             <Text style={styles.statValue}>{workout.difficulty}</Text>
           </View>
-          <View style={styles.stat}>
-            <Text style={styles.statLabel}>Calories</Text>
-            <Text style={styles.statValue}>{workout.calories}</Text>
-          </View>
+          {workout.calories && (
+            <View style={styles.stat}>
+              <Text style={styles.statLabel}>Calories</Text>
+              <Text style={styles.statValue}>{workout.calories}</Text>
+            </View>
+          )}
         </View>
 
         {!isCompleted ? (
@@ -58,21 +71,29 @@ export const WorkoutDetailScreen: React.FC<WorkoutDetailScreenProps> = ({ route 
         <Text style={styles.description}>{workout.description}</Text>
 
         <Text style={styles.sectionTitle}>Equipment Needed</Text>
-        {workout.equipment.map((item, index) => (
-          <Text key={index} style={styles.equipmentItem}>• {item}</Text>
-        ))}
+        {workout.equipment && workout.equipment.length > 0 ? (
+          workout.equipment.map((item, index) => (
+            <Text key={index} style={styles.equipmentItem}>• {item}</Text>
+          ))
+        ) : (
+          <Text style={styles.equipmentItem}>No equipment needed</Text>
+        )}
 
         <Text style={styles.sectionTitle}>Exercises</Text>
-        {workout.exercises.map((exercise, index) => (
-          <View key={index} style={styles.exerciseItem}>
-            <Text style={styles.exerciseName}>{exercise.name}</Text>
-            <Text style={styles.exerciseDetails}>
-              {exercise.sets} sets × {exercise.reps} reps
-              {exercise.duration && ` (${exercise.duration})`}
-            </Text>
-            <Text style={styles.exerciseDescription}>{exercise.description}</Text>
-          </View>
-        ))}
+        {workout.exercises && workout.exercises.length > 0 ? (
+          workout.exercises.map((exercise, index) => (
+            <View key={index} style={styles.exerciseItem}>
+              <Text style={styles.exerciseName}>{exercise.name}</Text>
+              <Text style={styles.exerciseDetails}>
+                {exercise.sets} sets × {exercise.reps} reps
+                {exercise.duration && ` (${exercise.duration})`}
+              </Text>
+              <Text style={styles.exerciseDescription}>{exercise.description}</Text>
+            </View>
+          ))
+        ) : (
+          <Text style={styles.exerciseItem}>No exercises available</Text>
+        )}
       </View>
     </ScrollView>
   );
