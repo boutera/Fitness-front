@@ -3,12 +3,11 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   Image,
   Dimensions,
-  ImageSourcePropType,
   FlatList,
+  ImageSourcePropType,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -32,44 +31,6 @@ const categories: WorkoutCategory[] = [
   { id: '4', title: 'HIIT', icon: 'whatshot' }
 ];
 
-const workouts: Workout[] = [
-  {
-    id: '1',
-    title: 'Full Body Workout',
-    description: 'A comprehensive workout targeting all major muscle groups',
-    duration: 45,
-    difficulty: 'Intermediate',
-    type: 'Strength',
-    imageUrl: require('../../assets/Full-body-workout.jpg'),
-    exercises: [],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '2',
-    title: 'HIIT Cardio',
-    description: 'High-intensity interval training for maximum calorie burn',
-    duration: 30,
-    difficulty: 'Advanced',
-    type: 'HIIT',
-    imageUrl: require('../../assets/Hiit-cardio.gif'),
-    exercises: [],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '3',
-    title: 'Yoga Flow',
-    description: 'A calming yoga sequence to improve flexibility and mindfulness',
-    duration: 60,
-    difficulty: 'Beginner',
-    type: 'Yoga',
-    imageUrl: require('../../assets/yoga-flow.png'),
-    exercises: [],
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-];
 
 const WorkoutScreen: React.FC = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -98,7 +59,7 @@ const WorkoutScreen: React.FC = () => {
       onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}
     >
       <Image
-        source={item.imageUrl}
+        source={ require('../../assets/yoga-flow.png' )}
         style={styles.workoutImage}
         resizeMode="cover"
       />
@@ -114,6 +75,58 @@ const WorkoutScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
+  const renderHeader = () => (
+    <View>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Workouts</Text>
+        <TouchableOpacity style={styles.filterButton}>
+          <Ionicons name="filter-outline" size={24} color="#333" />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={categories}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={[
+              styles.categoryButton,
+              selectedCategory === item.id && styles.selectedCategory,
+            ]}
+            onPress={() => setSelectedCategory(item.id)}
+          >
+            <MaterialIcons
+              name={item.icon as any}
+              size={24}
+              color={selectedCategory === item.id ? '#fff' : '#4c669f'}
+            />
+            <Text
+              style={[
+                styles.categoryText,
+                selectedCategory === item.id && styles.selectedCategoryText,
+              ]}
+            >
+              {item.title}
+            </Text>
+          </TouchableOpacity>
+        )}
+        contentContainerStyle={styles.categoriesContainer}
+      />
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Featured Workouts</Text>
+      </View>
+    </View>
+  );
+
+  const renderFooter = () => (
+    <TouchableOpacity style={styles.startButton}>
+      <Text style={styles.startButtonText}>Start New Workout</Text>
+    </TouchableOpacity>
+  );
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -123,62 +136,17 @@ const WorkoutScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Workouts</Text>
-        <TouchableOpacity style={styles.filterButton}>
-          <Ionicons name="filter-outline" size={24} color="#333" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Categories */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.categoriesContainer}
-      >
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            style={[
-              styles.categoryButton,
-              selectedCategory === category.id && styles.selectedCategory,
-            ]}
-            onPress={() => setSelectedCategory(category.id)}
-          >
-            <MaterialIcons
-              name={category.icon as any}
-              size={24}
-              color={selectedCategory === category.id ? '#fff' : '#4c669f'}
-            />
-            <Text
-              style={[
-                styles.categoryText,
-                selectedCategory === category.id && styles.selectedCategoryText,
-              ]}
-            >
-              {category.title}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {/* Featured Workouts */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Featured Workouts</Text>
-        <FlatList
-          data={workouts}
-          renderItem={renderWorkoutItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.listContainer}
-        />
-      </View>
-
-      {/* Start Workout Button */}
-      <TouchableOpacity style={styles.startButton}>
-        <Text style={styles.startButtonText}>Start New Workout</Text>
-      </TouchableOpacity>
-    </ScrollView>
+    <View style={styles.container}>
+      <FlatList
+        data={workouts}
+        renderItem={renderWorkoutItem}
+        keyExtractor={(item) => item.id}
+        ListHeaderComponent={renderHeader}
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
   );
 };
 
@@ -243,6 +211,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 8,
     marginBottom: 16,
+    marginHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -297,7 +266,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   listContainer: {
-    padding: 16,
+    paddingBottom: 20,
   },
 });
 

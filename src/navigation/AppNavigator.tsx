@@ -3,13 +3,13 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import { HomeScreen } from '../components/HomeScreen';
-import { WorkoutScreen } from '../components/WorkoutScreen';
+import WorkoutScreen from '../components/WorkoutScreen';
 import { ScheduleScreen } from '../components/ScheduleScreen';
 import { ProgressScreen } from '../components/ProgressScreen';
 import { WorkoutDetailScreen } from '../components/WorkoutDetailScreen';
 import ChallengeDetailScreen from '../components/ChallengeDetailScreen';
 import { RewardsScreen } from '../components/RewardsScreen';
-import type { Workout } from '../components/WorkoutScreen';
+import type { Workout } from '../types/workout';
 import AuthScreen from '../components/AuthScreen';
 
 export interface Challenge {

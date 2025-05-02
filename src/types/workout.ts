@@ -19,7 +19,7 @@ export interface Workout {
   duration: number; // in minutes
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   type: 'Strength' | 'Cardio' | 'Yoga' | 'HIIT';
-  imageUrl: ImageSourcePropType;
+  imageUrl: string;
   exercises: Exercise[];
   createdAt: Date;
   updatedAt: Date;
