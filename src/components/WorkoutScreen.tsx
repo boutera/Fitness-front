@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,36 +8,16 @@ import {
   Image,
   Dimensions,
   ImageSourcePropType,
+  FlatList,
 } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { Workout } from '../types/workout';
+import { workoutService } from '../services/workoutService';
 
 const { width } = Dimensions.get('window');
-
-type Exercise = {
-  id: string;
-  name: string;
-  sets: number;
-  reps?: number;
-  duration?: string;
-  image: string;
-  description: string;
-};
-
-export type Workout = {
-  id: string;
-  title: string;
-  trainer: string;
-  duration: string;
-  difficulty: string;
-  calories: number;
-  description: string;
-  equipment: string[];
-  image: ImageSourcePropType;
-  exercises: Exercise[];
-};
 
 interface WorkoutCategory {
   id: string;
@@ -56,125 +36,91 @@ const workouts: Workout[] = [
   {
     id: '1',
     title: 'Full Body Workout',
-    trainer: 'John Smith',
-    duration: '45 min',
+    description: 'A comprehensive workout targeting all major muscle groups',
+    duration: 45,
     difficulty: 'Intermediate',
-    calories: 350,
-    description: 'A comprehensive full-body workout targeting all major muscle groups.',
-    equipment: ['Dumbbells', 'Yoga mat'],
-    image: require('../../assets/Full-body-workout.jpg'),
-    exercises: [
-      {
-        id: '1',
-        name: 'Push-ups',
-        sets: 3,
-        reps: 15,
-        image: 'https://example.com/pushup.jpg',
-        description: 'Classic push-ups targeting chest, shoulders, and triceps.'
-      },
-      {
-        id: '2',
-        name: 'Squats',
-        sets: 4,
-        reps: 12,
-        image: 'https://example.com/squat.jpg',
-        description: 'Traditional bodyweight squats for lower body strength.'
-      },
-      {
-        id: '3',
-        name: 'Plank',
-        sets: 3,
-        reps: 60,
-        image: 'https://example.com/plank.jpg',
-        description: 'Core-strengthening exercise holding a plank position.'
-      }
-    ]
+    type: 'Strength',
+    imageUrl: require('../../assets/Full-body-workout.jpg'),
+    exercises: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: '2',
     title: 'HIIT Cardio',
-    trainer: 'Sarah Johnson',
-    duration: '30 min',
+    description: 'High-intensity interval training for maximum calorie burn',
+    duration: 30,
     difficulty: 'Advanced',
-    calories: 450,
-    description: 'High-intensity interval training to boost cardio and burn calories.',
-    equipment: ['None'],
-    image: require('../../assets/Hiit-cardio.gif'),
-    exercises: [
-      {
-        id: '4',
-        name: 'Burpees',
-        sets: 4,
-        reps: 20,
-        duration: '45 sec',
-        image: 'https://example.com/burpee.jpg',
-        description: 'Full-body exercise combining a squat, push-up, and jump.'
-      },
-      {
-        id: '5',
-        name: 'Mountain Climbers',
-        sets: 3,
-        reps: 30,
-        duration: '45 sec',
-        image: 'https://example.com/mountain-climber.jpg',
-        description: 'Dynamic exercise targeting core and improving cardio.'
-      },
-      {
-        id: '6',
-        name: 'Jump Rope',
-        sets: 4,
-        reps: 50,
-        duration: '60 sec',
-        image: 'https://example.com/jump-rope.jpg',
-        description: 'Cardio exercise improving coordination and endurance.'
-      }
-    ]
+    type: 'HIIT',
+    imageUrl: require('../../assets/Hiit-cardio.gif'),
+    exercises: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
   },
   {
     id: '3',
     title: 'Yoga Flow',
-    trainer: 'Emma Davis',
-    duration: '60 min',
+    description: 'A calming yoga sequence to improve flexibility and mindfulness',
+    duration: 60,
     difficulty: 'Beginner',
-    calories: 175,
-    description: 'Relaxing yoga flow focusing on flexibility and mindfulness.',
-    equipment: ['Yoga mat'],
-    image: require('../../assets/yoga-flow.png'),
-    exercises: [
-      {
-        id: '7',
-        name: 'Sun Salutation',
-        sets: 3,
-        reps: 5,
-        duration: '60 sec',
-        image: 'https://example.com/sun-salutation.jpg',
-        description: 'Traditional yoga sequence warming up the entire body.'
-      },
-      {
-        id: '8',
-        name: 'Warrior Poses',
-        sets: 2,
-        reps: 8,
-        duration: '45 sec',
-        image: 'https://example.com/warrior.jpg',
-        description: 'Series of standing poses building strength and balance.'
-      },
-      {
-        id: '9',
-        name: 'Child\'s Pose',
-        sets: 2,
-        reps: 3,
-        duration: '60 sec',
-        image: 'https://example.com/child-pose.jpg',
-        description: 'Restorative pose for relaxation and gentle stretching.'
-      }
-    ]
+    type: 'Yoga',
+    imageUrl: require('../../assets/yoga-flow.png'),
+    exercises: [],
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 
-export const WorkoutScreen: React.FC = () => {
+const WorkoutScreen: React.FC = () => {
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('1');
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    loadWorkouts();
+  }, []);
+
+  const loadWorkouts = async () => {
+    try {
+      const data = await workoutService.getAllWorkouts();
+      setWorkouts(data);
+    } catch (error) {
+      console.error('Error loading workouts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const renderWorkoutItem = ({ item }: { item: Workout }) => (
+    <TouchableOpacity
+      style={styles.workoutCard}
+      onPress={() => navigation.navigate('WorkoutDetail', { workout: item })}
+    >
+      <Image
+        source={item.imageUrl}
+        style={styles.workoutImage}
+        resizeMode="cover"
+      />
+      <View style={styles.workoutInfo}>
+        <Text style={styles.workoutTitle}>{item.title}</Text>
+        <Text style={styles.workoutDescription}>{item.description}</Text>
+        <View style={styles.workoutMeta}>
+          <Text style={styles.workoutDuration}>{item.duration} min</Text>
+          <Text style={styles.workoutDifficulty}>{item.difficulty}</Text>
+          <Text style={styles.workoutType}>{item.type}</Text>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading workouts...</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -220,33 +166,12 @@ export const WorkoutScreen: React.FC = () => {
       {/* Featured Workouts */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Featured Workouts</Text>
-        {workouts.map((workout) => (
-          <TouchableOpacity
-            key={workout.id}
-            style={styles.workoutCard}
-            onPress={() => navigation.navigate('WorkoutDetail', { workout })}
-          >
-            <Image source={workout.image} style={styles.workoutImage} />
-            <View style={styles.workoutInfo}>
-              <Text style={styles.workoutTitle}>{workout.title}</Text>
-              <View style={styles.workoutDetails}>
-                <View style={styles.detailItem}>
-                  <Ionicons name="time-outline" size={16} color="#666" />
-                  <Text style={styles.detailText}>{workout.duration}</Text>
-                </View>
-                <View style={styles.detailItem}>
-                  <Ionicons name="speedometer-outline" size={16} color="#666" />
-                  <Text style={styles.detailText}>{workout.difficulty}</Text>
-                </View>
-                <View style={styles.detailItem}>
-                  <Ionicons name="flame-outline" size={16} color="#666" />
-                  <Text style={styles.detailText}>{workout.calories} cal</Text>
-                </View>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#666" />
-          </TouchableOpacity>
-        ))}
+        <FlatList
+          data={workouts}
+          renderItem={renderWorkoutItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+        />
       </View>
 
       {/* Start Workout Button */}
@@ -315,47 +240,49 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   workoutCard: {
-    flexDirection: 'row',
     backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 15,
-    overflow: 'hidden',
-    elevation: 2,
+    borderRadius: 8,
+    marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    alignItems: 'center',
-    padding: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   workoutImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 8,
+    width: '100%',
+    height: 200,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
   },
   workoutInfo: {
-    flex: 1,
-    marginLeft: 15,
+    padding: 16,
   },
   workoutTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: '#333',
     marginBottom: 8,
   },
-  workoutDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  detailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  detailText: {
-    marginLeft: 4,
+  workoutDescription: {
+    fontSize: 14,
     color: '#666',
-    fontSize: 12,
+    marginBottom: 8,
+  },
+  workoutMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  workoutDuration: {
+    fontSize: 14,
+    color: '#666',
+  },
+  workoutDifficulty: {
+    fontSize: 14,
+    color: '#666',
+  },
+  workoutType: {
+    fontSize: 14,
+    color: '#666',
   },
   startButton: {
     backgroundColor: '#4c669f',
@@ -369,4 +296,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-}); 
+  listContainer: {
+    padding: 16,
+  },
+});
+
+export default WorkoutScreen; 
