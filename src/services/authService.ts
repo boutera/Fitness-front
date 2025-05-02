@@ -1,50 +1,106 @@
-import axios from 'axios';
-import { LoginCredentials, RegisterCredentials, User } from '../types/auth';
+import { API_URL } from '../config';
 
-const API_URL = 'http://192.168.11.119:8080/api';
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password?: string;
+  role?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
-export const authService = {
-  async login(credentials: LoginCredentials): Promise<User> {
-    try {
-      const response = await axios.post(`${API_URL}/auth/login`, credentials);
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || 'Login failed');
-      }
-      throw new Error('Login failed');
-    }
-  },
+interface AuthResponse extends User {
+  token?: string;
+}
 
-  async register(credentials: RegisterCredentials): Promise<User> {
-    try {
-      const response = await axios.post(`${API_URL}/auth/register`, credentials);
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || 'Registration failed');
-      }
-      throw new Error('Registration failed');
-    }
-  },
+export const login = async (credentials: { username: string; password: string }): Promise<AuthResponse> => {
+  console.log('Login request:', credentials);
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
 
-  async logout(): Promise<void> {
-    try {
-      await axios.post(`${API_URL}/auth/logout`);
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data?.message || 'Logout failed');
-      }
-      throw new Error('Logout failed');
-    }
-  },
+  if (!response.ok) {
+    const error = await response.text();
+    console.error('Login error response:', error);
+    throw new Error(error || 'Login failed');
+  }
 
-  async getCurrentUser(): Promise<User | null> {
-    try {
-      const response = await axios.get(`${API_URL}/auth/me`);
-      return response.data;
-    } catch (error) {
+  const data = await response.json();
+  const token = response.headers.get('Authorization')?.replace('Bearer ', '') || '';
+  console.log('Login success response:', { ...data, token });
+  return { ...data, token };
+};
+
+export const register = async (data: { 
+  username: string; 
+  email: string; 
+  password: string;
+  firstName: string;
+  lastName: string;
+}): Promise<AuthResponse> => {
+  console.log('Register request:', data);
+  const response = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error('Register error response:', error);
+    throw new Error(error || 'Registration failed');
+  }
+
+  const responseData = await response.json();
+  const token = response.headers.get('Authorization')?.replace('Bearer ', '') || '';
+  console.log('Register success response:', { ...responseData, token });
+  return { ...responseData, token };
+};
+
+export const logoutApi = async (token: string): Promise<void> => {
+  const response = await fetch(`${API_URL}/auth/logout`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(error || 'Logout failed');
+  }
+};
+
+export const getCurrentUser = async (token: string): Promise<User | null> => {
+  console.log('Getting current user with token:', token);
+  try {
+    const response = await fetch(`${API_URL}/auth/me`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Get current user error:', response.status);
       return null;
     }
+
+    const userData = await response.json();
+    console.log('Current user response:', userData);
+    return userData;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
   }
 }; 

@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -24,18 +25,23 @@ export const AuthScreen: React.FC = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const { login, register, error } = useAuth();
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
       if (isLogin) {
         await login({ username, password });
       } else {
-        await register({ username, email, password });
+        await register({ username, email, password, firstName, lastName });
       }
     } catch (err) {
-      const error = err as Error;
-      Alert.alert('Error', error.message || 'Something went wrong');
+      console.error('Auth error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -65,17 +71,37 @@ export const AuthScreen: React.FC = () => {
           </View>
 
           {!isLogin && (
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={styles.input}
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Enter your email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
+            <>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>First Name</Text>
+                <TextInput
+                  style={styles.input}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  placeholder="Enter your first name"
+                />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Last Name</Text>
+                <TextInput
+                  style={styles.input}
+                  value={lastName}
+                  onChangeText={setLastName}
+                  placeholder="Enter your last name"
+                />
+              </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Enter your email"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+            </>
           )}
 
           <View style={styles.inputGroup}>
@@ -91,10 +117,18 @@ export const AuthScreen: React.FC = () => {
 
           {error && <Text style={styles.error}>{error}</Text>}
 
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>
-              {isLogin ? 'Login' : 'Register'}
-            </Text>
+          <TouchableOpacity 
+            style={styles.submitButton} 
+            onPress={handleSubmit}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.submitButtonText}>
+                {isLogin ? 'Login' : 'Register'}
+              </Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity

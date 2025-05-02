@@ -10,6 +10,7 @@ import { ProgressScreen } from '../components/ProgressScreen';
 import { RewardsScreen } from '../components/RewardsScreen';
 import { WorkoutDetailScreen } from '../components/WorkoutDetailScreen';
 import { ChallengeDetailScreen } from '../components/ChallengeDetailScreen';
+import { ProfileScreen } from '../screens/ProfileScreen';
 
 export type RootStackParamList = {
   Auth: undefined;
@@ -20,6 +21,7 @@ export type RootStackParamList = {
   Rewards: undefined;
   WorkoutDetail: { workoutId: string };
   ChallengeDetail: { challengeId: string };
+  Profile: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -46,6 +48,7 @@ export const AppNavigator: React.FC = () => {
             <Stack.Screen name="Rewards" component={RewardsScreen} />
             <Stack.Screen name="WorkoutDetail" component={WorkoutDetailScreen} />
             <Stack.Screen name="ChallengeDetail" component={ChallengeDetailScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
           </>
         )}
       </Stack.Navigator>

@@ -12,27 +12,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Workout } from './WorkoutScreen';  // Import Workout type
-import type { Challenge } from '../navigation/AppNavigator';
-
-type RootStackParamList = {
-  Home: undefined;
-  Workout: undefined;
-  Schedule: undefined;
-  Progress: undefined;
-  WorkoutDetail: {
-    workout: Workout;
-  };
-  ChallengeDetail: {
-    challenge: Challenge;
-  };
-  Rewards: undefined;
-};
+import { useAuth } from '../context/AuthContext';
+import { RootStackParamList } from '../navigation/types';
 
 const { width } = Dimensions.get('window');
 
 // Sample recent workouts data
-const recentWorkouts: Workout[] = [
+const recentWorkouts = [
   {
     id: '1',
     title: 'Full Body Workout',
@@ -152,10 +138,10 @@ const recentWorkouts: Workout[] = [
   }
 ];
 
-const activeChallenge: Challenge = {
+const activeChallenge = {
   id: '1',
   title: '30 Day Running Streak',
-  description: 'Build a consistent running habit by completing a run every day for 30 days. This challenge helps improve cardiovascular fitness, build endurance, and establish a regular exercise routine.',
+  description: 'Build a consistent running habit by completing a run every day for 30 days.',
   currentDay: 15,
   totalDays: 30,
   requirements: [
@@ -180,9 +166,10 @@ const activeChallenge: Challenge = {
 
 export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+  const { user } = useAuth();
 
   const handleChallengePress = () => {
-    navigation.navigate('ChallengeDetail', { challenge: activeChallenge });
+    navigation.navigate('ChallengeDetail', { challengeId: '1' });
   };
 
   return (
@@ -191,9 +178,14 @@ export const HomeScreen: React.FC = () => {
       <View style={styles.header}>
         <View style={styles.headerContent}>
           <Text style={styles.greeting}>Good Morning,</Text>
-          <Text style={styles.userName}>John Doe</Text>
+          <Text style={styles.userName}>
+            {user?.firstName} {user?.lastName}
+          </Text>
         </View>
-        <TouchableOpacity style={styles.profileButton}>
+        <TouchableOpacity 
+          style={styles.profileButton}
+          onPress={() => navigation.navigate('Profile')}
+        >
           <Ionicons name="person-circle-outline" size={40} color="#333" />
         </TouchableOpacity>
       </View>
@@ -271,7 +263,7 @@ export const HomeScreen: React.FC = () => {
             <TouchableOpacity 
               key={workout.id} 
               style={styles.workoutCard}
-              onPress={() => navigation.navigate('WorkoutDetail', { workout })}
+              onPress={() => navigation.navigate('WorkoutDetail', { workoutId: workout.id })}
             >
               <View style={styles.workoutImageContainer}>
                 <Image
