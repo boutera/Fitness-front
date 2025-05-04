@@ -71,7 +71,7 @@ const achievements: Achievement[] = [
     progress: 50,
     total: 50,
     isUnlocked: true,
-    points: 800,
+    points: 5000,
     category: 'Strength'
   },
   {
